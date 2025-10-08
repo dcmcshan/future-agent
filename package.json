@@ -1,0 +1,34 @@
+{
+  "name": "future-agent",
+  "version": "1.0.0",
+  "description": "Cannabis Industry Knowledge Agent powered by Future4200 forum data and RAG technology.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node manual-test.js",
+    "test:manual": "node manual-test.js",
+    "test:server": "node run-tests.js",
+    "dev": "python -m http.server 3000 --directory docs",
+    "test:playwright": "npx playwright test",
+    "test:playwright:headed": "npx playwright test --headed",
+    "test:playwright:ui": "npx playwright test --ui",
+    "test:playwright:debug": "npx playwright test --debug",
+    "test:playwright:install": "npx playwright install",
+    "test:playwright:codegen": "npx playwright codegen localhost:3000"
+  },
+  "keywords": [
+    "cannabis",
+    "ai",
+    "rag",
+    "future4200",
+    "testing"
+  ],
+  "author": "Future Agent Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
+  }
+}
