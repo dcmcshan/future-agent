@@ -1,2 +1,7 @@
 [core]
     autostage = true
+    remote = s3
+['remote "local"']
+    url = ../../dvc-storage
+['remote "s3"']
+    url = s3://future-agent-dvc-data
