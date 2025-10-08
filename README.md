@@ -12,9 +12,12 @@ Cannabis Industry Knowledge Agent powered by Future4200 forum data and RAG techn
 ## 📊 Data Overview
 
 - **Total Questions**: 16,337 extracted from Future4200 forum
+- **Total Threads**: 7,061 scraped from Future4200.com
+- **Data Size**: 430MB+ of forum data stored in S3
 - **Categories**: Extraction, Cultivation, Business, Equipment, Genetics
 - **Sources**: Future4200.com community discussions
 - **Processing**: F8 LangChain integration with confidence scoring
+- **Storage**: AWS S3 via DVC for efficient data versioning
 
 ## 🛠️ Setup
 
@@ -22,6 +25,7 @@ Cannabis Industry Knowledge Agent powered by Future4200 forum data and RAG techn
 - Python 3.8+
 - DVC (Data Version Control)
 - Git
+- AWS CLI configured (for S3 access)
 
 ### Installation
 
@@ -36,12 +40,17 @@ Cannabis Industry Knowledge Agent powered by Future4200 forum data and RAG techn
    pip install dvc
    ```
 
-3. **Pull data files:**
+3. **Configure DVC remote (if not already set):**
+   ```bash
+   dvc remote add -d s3 s3://future-agent-dvc-data
+   ```
+
+4. **Pull data files from S3:**
    ```bash
    dvc pull
    ```
 
-4. **Install Python dependencies:**
+5. **Install Python dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
@@ -99,7 +108,9 @@ future-agent/
 │   ├── f8-comparison.html   # Main comparison interface
 │   ├── index.html          # Landing page
 │   └── data/               # Web-accessible data files
-├── data/                   # DVC-tracked data files
+├── data/                   # DVC-tracked data files (stored in S3)
+│   ├── comprehensive_scraping_results.json  # 425MB - all forum threads
+│   ├── extracted_questions.json            # 5MB - 16,337 questions
 │   ├── f8_responses_demo.json
 │   ├── f8_processing_stats.json
 │   └── sample_questions_for_f8.json
