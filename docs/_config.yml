@@ -1,0 +1,30 @@
+# GitHub Pages Configuration for Future Agent
+title: Future Agent
+description: Cannabis Industry Knowledge Agent powered by Future4200 forum data
+baseurl: /future-agent
+url: https://formul8.github.io
+
+# Jekyll configuration
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Include files
+include:
+  - _redirects
+
+# Collections
+collections:
+  data:
+    output: false
