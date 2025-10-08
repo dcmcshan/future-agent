@@ -1,0 +1,5 @@
+outs:
+- md5: 17f0ea97a46ea1306d06078fd18fa85e
+  size: 704
+  hash: md5
+  path: f8_processing_stats.json

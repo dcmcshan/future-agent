@@ -1,0 +1,5 @@
+outs:
+- md5: bae3c62c6d1a4608cdeac294d8c93c17
+  size: 26556
+  hash: md5
+  path: f8_responses_demo.json
