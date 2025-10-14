@@ -1,0 +1,184 @@
+name: Nightly Future4200 Thread Scraping
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC (adjust timezone as needed)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      force_full_scrape:
+        description: 'Force full scrape (ignore incremental)'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.9'
+  DVC_CACHE_DIR: ~/.cache/dvc
+  DVC_REMOTE: s3://future-agent-dvc-data
+
+jobs:
+  scrape-threads:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for DVC
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install dvc[s3]
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: Configure DVC
+      run: |
+        dvc remote add -d s3 ${{ env.DVC_REMOTE }}
+        dvc config core.autostage true
+    
+    - name: Pull existing data
+      run: |
+        dvc pull data/comprehensive_scraping_results.json
+        dvc pull data/extracted_questions.json
+    
+    - name: Run incremental scraping
+      id: scrape
+      run: |
+        python scripts/nightly_scraper.py \
+          --output data/incremental_scraping_results.json \
+          --last-run ${{ github.event.inputs.force_full_scrape == 'true' && 'false' || 'true' }}
+    
+    - name: Check for new threads
+      id: check_new
+      run: |
+        if [ -f "data/incremental_scraping_results.json" ]; then
+          NEW_THREADS=$(python -c "
+          import json
+          with open('data/incremental_scraping_results.json', 'r') as f:
+              data = json.load(f)
+          print(data.get('new_threads_count', 0))
+          ")
+          echo "new_threads=$NEW_THREADS" >> $GITHUB_OUTPUT
+          echo "Found $NEW_THREADS new threads"
+        else
+          echo "new_threads=0" >> $GITHUB_OUTPUT
+          echo "No new threads found"
+        fi
+    
+    - name: Merge and update data
+      if: steps.check_new.outputs.new_threads > 0
+      run: |
+        python scripts/merge_scraping_data.py \
+          --existing data/comprehensive_scraping_results.json \
+          --incremental data/incremental_scraping_results.json \
+          --output data/comprehensive_scraping_results.json
+    
+    - name: Extract new questions
+      if: steps.check_new.outputs.new_threads > 0
+      run: |
+        python scripts/extract_questions.py \
+          --input data/comprehensive_scraping_results.json \
+          --output data/extracted_questions.json \
+          --incremental
+    
+    - name: Update DVC tracking
+      if: steps.check_new.outputs.new_threads > 0
+      run: |
+        dvc add data/comprehensive_scraping_results.json
+        dvc add data/extracted_questions.json
+        dvc add data/incremental_scraping_results.json
+    
+    - name: Commit and push changes
+      if: steps.check_new.outputs.new_threads > 0
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/*.json.dvc
+        git add data/incremental_scraping_results.json
+        git commit -m "Nightly scraping: ${{ steps.check_new.outputs.new_threads }} new threads added" || exit 0
+        git push
+    
+    - name: Push to DVC remote
+      if: steps.check_new.outputs.new_threads > 0
+      run: |
+        dvc push data/comprehensive_scraping_results.json
+        dvc push data/extracted_questions.json
+        dvc push data/incremental_scraping_results.json
+    
+    - name: Generate scraping report
+      run: |
+        python scripts/generate_scraping_report.py \
+          --output data/scraping_report.json \
+          --new-threads ${{ steps.check_new.outputs.new_threads }}
+    
+    - name: Upload scraping report
+      uses: actions/upload-artifact@v3
+      with:
+        name: scraping-report-${{ github.run_number }}
+        path: data/scraping_report.json
+        retention-days: 30
+    
+    - name: Notify on failure
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#future-agent-alerts'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Notify on success
+      if: success() && steps.check_new.outputs.new_threads > 0
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#future-agent-updates'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+        custom_payload: |
+          {
+            "text": "🌿 Future-Agent Nightly Scraping Complete",
+            "attachments": [
+              {
+                "color": "good",
+                "fields": [
+                  {
+                    "title": "New Threads Scraped",
+                    "value": "${{ steps.check_new.outputs.new_threads }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Run Number",
+                    "value": "${{ github.run_number }}",
+                    "short": true
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

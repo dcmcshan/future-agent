@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future4200 vs Future-Agent Search - Google Pages Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #202124;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #dadce0;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #5f6368;
+            margin-left: 10px;
+        }
+        
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-box {
+            width: 100%;
+            height: 44px;
+            padding: 0 16px;
+            border: 1px solid #dadce0;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px 1px rgba(64,60,67,.15);
+        }
+        
+        .search-box:focus {
+            border-color: #4285f4;
+            box-shadow: 0 2px 5px 1px rgba(64,60,67,.15), 0 0 0 1px #4285f4;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5f6368;
+            font-size: 20px;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        
+        .column-header {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 5px;
+            font-weight: 500;
+            color: #5f6368;
+            border: 1px solid #e8eaed;
+        }
+        
+        .column-header.active {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-color: #1a73e8;
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            min-height: 400px;
+        }
+        
+        .results-column {
+            background: #ffffff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #5f6368;
+        }
+        
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e8eaed;
+            border-top: 2px solid #1a73e8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #5f6368;
+            text-align: center;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .result-item {
+            border-bottom: 1px solid #e8eaed;
+            padding: 16px 0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a73e8;
+            text-decoration: none;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        .result-title:hover {
+            text-decoration: underline;
+        }
+        
+        .result-snippet {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .result-meta {
+            font-size: 12px;
+            color: #5f6368;
+            display: flex;
+            gap: 16px;
+        }
+        
+        .result-url {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        
+        .result-url:hover {
+            text-decoration: underline;
+        }
+        
+        .confidence-badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .error-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #d93025;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .stats-bar {
+            background: #f8f9fa;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #5f6368;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dadce0;
+            border-top: none;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 6px rgba(32,33,36,.28);
+            z-index: 10;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 14px;
+            color: #5f6368;
+        }
+        
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-highlight {
+            font-weight: 500;
+            color: #202124;
+        }
+        
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .comparison-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .column-header {
+                margin: 0;
+            }
+            
+            .main-content {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #4285f4, #34a853); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">F</div>
+                <h1>Future Search Comparison</h1>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search cannabis questions..." autocomplete="off">
+                <div class="search-icon">🔍</div>
+                <div class="search-suggestions" id="searchSuggestions" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="stats-bar" id="statsBar" style="display: none;">
+            <div id="searchStats"></div>
+            <div id="searchTime"></div>
+        </div>
+        
+        <div class="comparison-header">
+            <div class="column-header active" id="future4200Header">
+                <div>🌿 Future4200 Forum</div>
+                <div style="font-size: 12px; font-weight: 400; margin-top: 4px;" id="future4200Count">0 results</div>
+            </div>
+            <div class="column-header active" id="futureAgentHeader">
+                <div>🤖 Future-Agent AI</div>
+                <div style="font-size: 12px; font-weight: 400; margin-top: 4px;" id="futureAgentCount">0 results</div>
+            </div>
+        </div>
+        
+        <div class="results-container">
+            <div class="results-column" id="future4200Results">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🌿</div>
+                    <div>Enter a search query to find Future4200 forum discussions</div>
+                </div>
+            </div>
+            
+            <div class="results-column" id="futureAgentResults">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🤖</div>
+                    <div>Enter a search query to get Future-Agent AI responses</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SearchComparison {
+            constructor() {
+                this.searchInput = document.getElementById('searchInput');
+                this.searchSuggestions = document.getElementById('searchSuggestions');
+                this.future4200Results = document.getElementById('future4200Results');
+                this.futureAgentResults = document.getElementById('futureAgentResults');
+                this.statsBar = document.getElementById('statsBar');
+                this.searchStats = document.getElementById('searchStats');
+                this.searchTime = document.getElementById('searchTime');
+                this.future4200Count = document.getElementById('future4200Count');
+                this.futureAgentCount = document.getElementById('futureAgentCount');
+                
+                this.searchTimeout = null;
+                this.isSearching = false;
+                this.searchStartTime = null;
+                
+                this.initializeEventListeners();
+                this.loadSampleData();
+            }
+            
+            initializeEventListeners() {
+                this.searchInput.addEventListener('input', (e) => {
+                    this.handleSearchInput(e.target.value);
+                });
+                
+                this.searchInput.addEventListener('focus', () => {
+                    this.showSuggestions();
+                });
+                
+                this.searchInput.addEventListener('blur', () => {
+                    setTimeout(() => this.hideSuggestions(), 200);
+                });
+                
+                this.searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.performSearch(e.target.value);
+                    }
+                });
+            }
+            
+            loadSampleData() {
+                // Load sample data for suggestions and initial search
+                this.sampleQuestions = [
+                    "How to extract CBD from hemp?",
+                    "What equipment do I need for distillation?",
+                    "Cannabis business regulations by state",
+                    "Best LED lights for growing cannabis",
+                    "How to make rosin at home?",
+                    "Cannabis extraction safety protocols",
+                    "Growing cannabis indoors setup",
+                    "CBD isolate vs full spectrum",
+                    "Cannabis testing requirements",
+                    "How to start a cannabis business"
+                ];
+            }
+            
+            handleSearchInput(query) {
+                clearTimeout(this.searchTimeout);
+                
+                if (query.length < 2) {
+                    this.hideSuggestions();
+                    return;
+                }
+                
+                this.searchTimeout = setTimeout(() => {
+                    this.showSuggestions();
+                    this.performSearch(query);
+                }, 300);
+            }
+            
+            showSuggestions() {
+                const query = this.searchInput.value.toLowerCase();
+                if (query.length < 2) {
+                    this.hideSuggestions();
+                    return;
+                }
+                
+                const suggestions = this.sampleQuestions
+                    .filter(q => q.toLowerCase().includes(query))
+                    .slice(0, 5);
+                
+                if (suggestions.length === 0) {
+                    this.hideSuggestions();
+                    return;
+                }
+                
+                this.searchSuggestions.innerHTML = suggestions
+                    .map(suggestion => {
+                        const highlighted = suggestion.replace(
+                            new RegExp(`(${query})`, 'gi'),
+                            '<span class="suggestion-highlight">$1</span>'
+                        );
+                        return `<div class="suggestion-item" onclick="this.selectSuggestion('${suggestion}')">${highlighted}</div>`;
+                    })
+                    .join('');
+                
+                this.searchSuggestions.style.display = 'block';
+            }
+            
+            hideSuggestions() {
+                this.searchSuggestions.style.display = 'none';
+            }
+            
+            selectSuggestion(suggestion) {
+                this.searchInput.value = suggestion;
+                this.hideSuggestions();
+                this.performSearch(suggestion);
+            }
+            
+            async performSearch(query) {
+                if (!query.trim() || this.isSearching) return;
+                
+                this.isSearching = true;
+                this.searchStartTime = Date.now();
+                
+                // Show loading states
+                this.showLoadingState();
+                this.statsBar.style.display = 'flex';
+                this.searchStats.textContent = `Searching for "${query}"...`;
+                
+                try {
+                    // Perform both searches in parallel
+                    const [future4200Results, futureAgentResults] = await Promise.all([
+                        this.searchFuture4200(query),
+                        this.searchFutureAgent(query)
+                    ]);
+                    
+                    // Display results
+                    this.displayResults(future4200Results, futureAgentResults, query);
+                    
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showErrorState();
+                } finally {
+                    this.isSearching = false;
+                }
+            }
+            
+            showLoadingState() {
+                this.future4200Results.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Searching Future4200 forum...</div>
+                    </div>
+                `;
+                
+                this.futureAgentResults.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Searching Future-Agent AI...</div>
+                    </div>
+                `;
+            }
+            
+            showErrorState() {
+                this.future4200Results.innerHTML = `
+                    <div class="error-state">
+                        <div class="error-icon">⚠️</div>
+                        <div>Error searching Future4200</div>
+                    </div>
+                `;
+                
+                this.futureAgentResults.innerHTML = `
+                    <div class="error-state">
+                        <div class="error-icon">⚠️</div>
+                        <div>Error searching Future-Agent</div>
+                    </div>
+                `;
+            }
+            
+            async searchFuture4200(query) {
+                // Simulate API call to Future4200 search
+                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
+                
+                // Mock data based on the actual data structure
+                const mockResults = [
+                    {
+                        title: `"${query}" - Future4200 Forum Discussion`,
+                        snippet: `Community discussion about ${query.toLowerCase()}. Multiple users have shared their experiences and provided detailed answers based on real-world practice.`,
+                        url: "https://future4200.com/t/sample-thread/12345",
+                        author: "community_member",
+                        date: "2 days ago",
+                        replies: Math.floor(Math.random() * 20) + 1,
+                        views: Math.floor(Math.random() * 1000) + 100
+                    },
+                    {
+                        title: `Best practices for ${query.toLowerCase()}`,
+                        snippet: `Comprehensive guide covering safety protocols, equipment recommendations, and step-by-step instructions for ${query.toLowerCase()}.`,
+                        url: "https://future4200.com/t/best-practices/67890",
+                        author: "expert_grower",
+                        date: "1 week ago",
+                        replies: Math.floor(Math.random() * 15) + 1,
+                        views: Math.floor(Math.random() * 500) + 50
+                    },
+                    {
+                        title: `Equipment recommendations for ${query.toLowerCase()}`,
+                        snippet: `Detailed equipment reviews and recommendations from experienced community members. Includes cost analysis and performance comparisons.`,
+                        url: "https://future4200.com/t/equipment-recommendations/11111",
+                        author: "equipment_guru",
+                        date: "3 days ago",
+                        replies: Math.floor(Math.random() * 10) + 1,
+                        views: Math.floor(Math.random() * 300) + 25
+                    }
+                ];
+                
+                return mockResults;
+            }
+            
+            async searchFutureAgent(query) {
+                // Simulate API call to Future-Agent
+                await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 300));
+                
+                // Mock data based on the F8 response structure
+                const mockResults = [
+                    {
+                        title: `AI Analysis: ${query}`,
+                        snippet: `Comprehensive analysis of ${query.toLowerCase()} based on cannabis industry best practices and regulatory guidelines.`,
+                        confidence: 0.85 + Math.random() * 0.14,
+                        processingTime: (1.0 + Math.random() * 2.0).toFixed(1),
+                        sources: ["Cannabis Industry Best Practices", "Regulatory Guidelines", "Expert Consultation"],
+                        category: this.getRandomCategory()
+                    },
+                    {
+                        title: `Technical Guide: ${query}`,
+                        snippet: `Detailed technical guidance covering safety protocols, equipment specifications, and operational procedures for ${query.toLowerCase()}.`,
+                        confidence: 0.78 + Math.random() * 0.17,
+                        processingTime: (1.2 + Math.random() * 1.8).toFixed(1),
+                        sources: ["Technical Documentation", "Safety Standards", "Industry Reports"],
+                        category: this.getRandomCategory()
+                    },
+                    {
+                        title: `Business Insights: ${query}`,
+                        snippet: `Market analysis and business considerations for ${query.toLowerCase()}, including regulatory compliance and cost analysis.`,
+                        confidence: 0.82 + Math.random() * 0.15,
+                        processingTime: (0.8 + Math.random() * 1.5).toFixed(1),
+                        sources: ["Market Research", "Business Intelligence", "Regulatory Updates"],
+                        category: this.getRandomCategory()
+                    }
+                ];
+                
+                return mockResults;
+            }
+            
+            getRandomCategory() {
+                const categories = ['extraction', 'cultivation', 'business', 'equipment', 'genetics', 'processing'];
+                return categories[Math.floor(Math.random() * categories.length)];
+            }
+            
+            displayResults(future4200Results, futureAgentResults, query) {
+                const searchTime = ((Date.now() - this.searchStartTime) / 1000).toFixed(2);
+                
+                // Update stats
+                this.searchStats.textContent = `Found ${future4200Results.length + futureAgentResults.length} results for "${query}"`;
+                this.searchTime.textContent = `Search completed in ${searchTime}s`;
+                
+                // Update counts
+                this.future4200Count.textContent = `${future4200Results.length} results`;
+                this.futureAgentCount.textContent = `${futureAgentResults.length} results`;
+                
+                // Display Future4200 results
+                this.future4200Results.innerHTML = future4200Results.length > 0 
+                    ? future4200Results.map(result => this.createFuture4200Result(result)).join('')
+                    : `<div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>No Future4200 results found for "${query}"</div>
+                    </div>`;
+                
+                // Display Future-Agent results
+                this.futureAgentResults.innerHTML = futureAgentResults.length > 0
+                    ? futureAgentResults.map(result => this.createFutureAgentResult(result)).join('')
+                    : `<div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>No Future-Agent results found for "${query}"</div>
+                    </div>`;
+            }
+            
+            createFuture4200Result(result) {
+                return `
+                    <div class="result-item">
+                        <a href="${result.url}" class="result-title" target="_blank">${result.title}</a>
+                        <div class="result-snippet">${result.snippet}</div>
+                        <div class="result-meta">
+                            <span>by ${result.author}</span>
+                            <span>${result.date}</span>
+                            <span>${result.replies} replies</span>
+                            <span>${result.views} views</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            createFutureAgentResult(result) {
+                return `
+                    <div class="result-item">
+                        <div class="result-title">${result.title}</div>
+                        <div class="result-snippet">${result.snippet}</div>
+                        <div class="result-meta">
+                            <span class="confidence-badge">${(result.confidence * 100).toFixed(0)}% confidence</span>
+                            <span>${result.processingTime}s processing</span>
+                            <span>${result.category}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize the search comparison when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SearchComparison();
+        });
+        
+        // Add global function for suggestion selection
+        window.selectSuggestion = function(suggestion) {
+            document.getElementById('searchInput').value = suggestion;
+            document.getElementById('searchSuggestions').style.display = 'none';
+            new SearchComparison().performSearch(suggestion);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/danielmcshan/GitHub/future-agent/logs/.af94fb5b4166e8d7fe9e6fea76cb860186bd11cc-audit.json",
+    "files": [
+        {
+            "date": 1760403240858,
+            "name": "/Users/danielmcshan/GitHub/future-agent/logs/mcp-puppeteer-2025-10-13.log",
+            "hash": "8274dbe2ee14c8c54457acc53e82dbcfdbfea60c4cddd0c2e76debf68a26c69d"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -8,6 +8,8 @@ Cannabis Industry Knowledge Agent powered by Future4200 forum data and RAG techn
 - **Question Extraction**: 16,337+ questions extracted from 7,061 forum threads
 - **Interactive Interface**: Filter by category, confidence, and search functionality
 - **Data Versioning**: All data files managed with DVC (Data Version Control)
+- **Automated Updates**: Nightly scraping to keep dataset current with latest forum discussions
+- **Multi-Agent Processing**: Advanced AI system with specialized agents for comprehensive analysis
 
 ## 📊 Data Overview
 
@@ -106,6 +108,8 @@ dvc status
 future-agent/
 ├── docs/                    # GitHub Pages site
 │   ├── f8-comparison.html   # Main comparison interface
+│   ├── google-pages-comparison.html  # Google-style search interface
+│   ├── multiagent-comparison.html    # Multi-agent processing interface
 │   ├── index.html          # Landing page
 │   └── data/               # Web-accessible data files
 ├── data/                   # DVC-tracked data files (stored in S3)
@@ -114,9 +118,18 @@ future-agent/
 │   ├── f8_responses_demo.json
 │   ├── f8_processing_stats.json
 │   └── sample_questions_for_f8.json
+├── scripts/                # Automation scripts
+│   ├── nightly_scraper.py  # Nightly thread scraping
+│   ├── merge_scraping_data.py  # Data merging
+│   ├── extract_questions.py    # Question extraction
+│   └── generate_scraping_report.py  # Report generation
 ├── demo_f8_processing.py   # Demo F8 processing script
 ├── ask_f8_all_questions.py # Full F8 processing script
-└── .github/workflows/      # GitHub Actions for deployment
+├── multiagent_integration.py  # Multi-agent system
+├── demo_multiagent_integration.py  # Multi-agent demo
+└── .github/workflows/      # GitHub Actions
+    ├── github-pages.yml    # Site deployment
+    └── nightly-scraping.yml  # Automated data updates
 ```
 
 ### Adding New Data

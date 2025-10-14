@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Cannabis Intelligence - Future Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f1419;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 20px 40px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }
+        
+        .header p {
+            color: #8b949e;
+            font-size: 14px;
+        }
+        
+        .nav {
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 0 40px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav a {
+            color: #8b949e;
+            text-decoration: none;
+            padding: 16px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .nav a:hover {
+            color: #c9d1d9;
+            border-bottom-color: #8b949e;
+        }
+        
+        .nav a.active {
+            color: #58a6ff;
+            border-bottom-color: #58a6ff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+        
+        .pipeline-overview {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .pipeline-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .pipeline-step {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .pipeline-step.active {
+            border-color: #58a6ff;
+            background: #0d1117;
+        }
+        
+        .pipeline-step.completed {
+            border-color: #238636;
+            background: #0d1117;
+        }
+        
+        .step-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .step-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #c9d1d9;
+        }
+        
+        .step-description {
+            font-size: 14px;
+            color: #8b949e;
+        }
+        
+        .search-container {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            width: 100%;
+            height: 50px;
+            padding: 0 20px;
+            border: 1px solid #30363d;
+            border-radius: 25px;
+            font-size: 16px;
+            background: #0d1117;
+            color: #c9d1d9;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .search-box:focus {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+        
+        .search-button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+        
+        .search-button:hover {
+            background: #2ea043;
+        }
+        
+        .search-button:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .results-panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .panel-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+        
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #c9d1d9;
+        }
+        
+        .panel-subtitle {
+            font-size: 14px;
+            color: #8b949e;
+            margin-left: auto;
+        }
+        
+        .thread-item {
+            border-bottom: 1px solid #30363d;
+            padding: 16px 0;
+        }
+        
+        .thread-item:last-child {
+            border-bottom: none;
+        }
+        
+        .thread-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #58a6ff;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .thread-title:hover {
+            text-decoration: underline;
+        }
+        
+        .thread-meta {
+            font-size: 12px;
+            color: #8b949e;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .thread-snippet {
+            font-size: 14px;
+            color: #c9d1d9;
+            line-height: 1.4;
+        }
+        
+        .relevance-score {
+            background: #238636;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .agent-response {
+            border-bottom: 1px solid #30363d;
+            padding: 20px 0;
+        }
+        
+        .agent-response:last-child {
+            border-bottom: none;
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .agent-type {
+            font-size: 14px;
+            font-weight: 600;
+            color: #c9d1d9;
+            text-transform: capitalize;
+        }
+        
+        .agent-confidence {
+            background: #58a6ff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+        
+        .agent-time {
+            font-size: 12px;
+            color: #8b949e;
+            margin-left: auto;
+        }
+        
+        .agent-content {
+            font-size: 14px;
+            color: #c9d1d9;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        
+        .agent-reasoning {
+            font-size: 12px;
+            color: #8b949e;
+            font-style: italic;
+            background: #21262d;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border-left: 3px solid #58a6ff;
+        }
+        
+        .synthesized-response {
+            background: #0d1117;
+            border: 1px solid #58a6ff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        
+        .synthesized-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .synthesized-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        
+        .synthesized-confidence {
+            background: #238636;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+        
+        .synthesized-content {
+            font-size: 15px;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+        
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #8b949e;
+        }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #30363d;
+            border-top: 3px solid #58a6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #8b949e;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .stats-bar {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        
+        .stat-label {
+            color: #8b949e;
+        }
+        
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .pipeline-steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Multi-Agent Cannabis Intelligence</h1>
+        <p>Advanced AI system combining Future4200 community knowledge with specialized LangChain agents</p>
+    </div>
+    
+    <div class="nav">
+        <a href="index.html">Home</a>
+        <a href="f8-comparison.html">F8 Comparison</a>
+        <a href="google-pages-comparison.html">Search Comparison</a>
+        <a href="multiagent-comparison.html" class="active">Multi-Agent</a>
+    </div>
+    
+    <div class="container">
+        <div class="pipeline-overview">
+            <h2>🔄 Multi-Agent Processing Pipeline</h2>
+            <p>Our system uses specialized AI agents to analyze cannabis questions through multiple expert perspectives</p>
+            
+            <div class="pipeline-steps">
+                <div class="pipeline-step" id="step1">
+                    <div class="step-icon">🔍</div>
+                    <div class="step-title">Thread Discovery</div>
+                    <div class="step-description">Search Future4200 forum for relevant discussions</div>
+                </div>
+                
+                <div class="pipeline-step" id="step2">
+                    <div class="step-icon">🧠</div>
+                    <div class="step-title">Researcher Agent</div>
+                    <div class="step-description">Comprehensive research analysis</div>
+                </div>
+                
+                <div class="pipeline-step" id="step3">
+                    <div class="step-icon">📊</div>
+                    <div class="step-title">Analyst Agent</div>
+                    <div class="step-description">Trend and pattern analysis</div>
+                </div>
+                
+                <div class="pipeline-step" id="step4">
+                    <div class="step-icon">⚙️</div>
+                    <div class="step-title">Technical Expert</div>
+                    <div class="step-description">Technical guidance and best practices</div>
+                </div>
+                
+                <div class="pipeline-step" id="step5">
+                    <div class="step-icon">💼</div>
+                    <div class="step-title">Business Consultant</div>
+                    <div class="step-description">Business and regulatory insights</div>
+                </div>
+                
+                <div class="pipeline-step" id="step6">
+                    <div class="step-icon">🛡️</div>
+                    <div class="step-title">Safety Specialist</div>
+                    <div class="step-description">Safety protocols and risk assessment</div>
+                </div>
+                
+                <div class="pipeline-step" id="step7">
+                    <div class="step-icon">🎯</div>
+                    <div class="step-title">Response Synthesis</div>
+                    <div class="step-description">Combine insights into final answer</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <h3>Ask a Cannabis Question</h3>
+            <p>Get comprehensive answers from multiple AI specialists based on real community discussions</p>
+            
+            <input type="text" class="search-box" id="questionInput" placeholder="e.g., How do I safely extract CBD from hemp using CO2?" autocomplete="off">
+            <button class="search-button" id="searchButton">Process with Multi-Agent System</button>
+        </div>
+        
+        <div class="stats-bar" id="statsBar" style="display: none;">
+            <div class="stat-item">
+                <span class="stat-value" id="threadCount">0</span>
+                <span class="stat-label">Threads Found</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="agentCount">0</span>
+                <span class="stat-label">Agents Responded</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="confidence">0%</span>
+                <span class="stat-label">Overall Confidence</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="processingTime">0s</span>
+                <span class="stat-label">Processing Time</span>
+            </div>
+        </div>
+        
+        <div class="results-container" id="resultsContainer" style="display: none;">
+            <div class="results-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">🌿</div>
+                    <div class="panel-title">Future4200 Threads</div>
+                    <div class="panel-subtitle" id="threadSubtitle">0 relevant discussions</div>
+                </div>
+                <div id="threadResults">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div>No threads found yet</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">🤖</div>
+                    <div class="panel-title">AI Agent Responses</div>
+                    <div class="panel-subtitle" id="agentSubtitle">0 agents responded</div>
+                </div>
+                <div id="agentResults">
+                    <div class="empty-state">
+                        <div class="empty-icon">🤖</div>
+                        <div>No agent responses yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="synthesized-response" id="synthesizedResponse" style="display: none;">
+            <div class="synthesized-header">
+                <div class="synthesized-title">🎯 Synthesized Answer</div>
+                <div class="synthesized-confidence" id="synthesizedConfidence">0% confidence</div>
+            </div>
+            <div class="synthesized-content" id="synthesizedContent">
+                <!-- Synthesized response will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MultiAgentInterface {
+            constructor() {
+                this.questionInput = document.getElementById('questionInput');
+                this.searchButton = document.getElementById('searchButton');
+                this.statsBar = document.getElementById('statsBar');
+                this.resultsContainer = document.getElementById('resultsContainer');
+                this.threadResults = document.getElementById('threadResults');
+                this.agentResults = document.getElementById('agentResults');
+                this.synthesizedResponse = document.getElementById('synthesizedResponse');
+                
+                this.initializeEventListeners();
+            }
+            
+            initializeEventListeners() {
+                this.searchButton.addEventListener('click', () => this.processQuestion());
+                this.questionInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.processQuestion();
+                    }
+                });
+            }
+            
+            async processQuestion() {
+                const question = this.questionInput.value.trim();
+                if (!question) return;
+                
+                this.searchButton.disabled = true;
+                this.searchButton.textContent = 'Processing...';
+                
+                // Show loading states
+                this.showLoadingStates();
+                this.statsBar.style.display = 'flex';
+                
+                try {
+                    // Simulate multi-agent processing
+                    const result = await this.simulateMultiAgentProcessing(question);
+                    this.displayResults(result);
+                } catch (error) {
+                    console.error('Processing error:', error);
+                    this.showErrorState();
+                } finally {
+                    this.searchButton.disabled = false;
+                    this.searchButton.textContent = 'Process with Multi-Agent System';
+                }
+            }
+            
+            showLoadingStates() {
+                // Reset pipeline steps
+                for (let i = 1; i <= 7; i++) {
+                    const step = document.getElementById(`step${i}`);
+                    step.className = 'pipeline-step';
+                }
+                
+                // Show loading in panels
+                this.threadResults.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Searching Future4200 threads...</div>
+                    </div>
+                `;
+                
+                this.agentResults.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div>Processing through AI agents...</div>
+                    </div>
+                `;
+                
+                this.synthesizedResponse.style.display = 'none';
+                this.resultsContainer.style.display = 'none';
+            }
+            
+            async simulateMultiAgentProcessing(question) {
+                // Simulate the multi-agent processing pipeline
+                const steps = [
+                    { id: 1, name: 'Thread Discovery', duration: 800 },
+                    { id: 2, name: 'Researcher Agent', duration: 1200 },
+                    { id: 3, name: 'Analyst Agent', duration: 1000 },
+                    { id: 4, name: 'Technical Expert', duration: 1500 },
+                    { id: 5, name: 'Business Consultant', duration: 1100 },
+                    { id: 6, name: 'Safety Specialist', duration: 900 },
+                    { id: 7, name: 'Response Synthesis', duration: 600 }
+                ];
+                
+                // Animate pipeline steps
+                for (const step of steps) {
+                    await this.animatePipelineStep(step.id, step.name, step.duration);
+                }
+                
+                // Generate mock results
+                return this.generateMockResults(question);
+            }
+            
+            async animatePipelineStep(stepId, stepName, duration) {
+                const step = document.getElementById(`step${stepId}`);
+                step.classList.add('active');
+                
+                await new Promise(resolve => setTimeout(resolve, duration));
+                
+                step.classList.remove('active');
+                step.classList.add('completed');
+            }
+            
+            generateMockResults(question) {
+                // Mock thread results
+                const threadResults = [
+                    {
+                        title: `"${question}" - Community Discussion`,
+                        author: "cannabis_expert",
+                        url: "https://future4200.com/t/sample-thread/12345",
+                        category: "extraction",
+                        relevance_score: 0.92,
+                        post_count: 15,
+                        view_count: 1200,
+                        snippet: `Community discussion about ${question.toLowerCase()}. Multiple experienced members have shared detailed insights and practical advice based on real-world experience.`
+                    },
+                    {
+                        title: `Best practices for ${question.toLowerCase()}`,
+                        author: "grow_master",
+                        url: "https://future4200.com/t/best-practices/67890",
+                        category: "cultivation",
+                        relevance_score: 0.87,
+                        post_count: 8,
+                        view_count: 800,
+                        snippet: `Comprehensive guide covering safety protocols, equipment recommendations, and step-by-step instructions for ${question.toLowerCase()}.`
+                    },
+                    {
+                        title: `Equipment recommendations for ${question.toLowerCase()}`,
+                        author: "tech_guru",
+                        url: "https://future4200.com/t/equipment/11111",
+                        category: "equipment",
+                        relevance_score: 0.83,
+                        post_count: 12,
+                        view_count: 950,
+                        snippet: `Detailed equipment reviews and recommendations from experienced community members. Includes cost analysis and performance comparisons.`
+                    }
+                ];
+                
+                // Mock agent responses
+                const agentResponses = [
+                    {
+                        agent_type: "researcher",
+                        response: `Based on comprehensive research analysis, ${question.toLowerCase()} involves several key considerations. The community discussions reveal consistent patterns in successful approaches, with safety being the primary concern across all methods.`,
+                        confidence: 0.89,
+                        processing_time: 1.2,
+                        reasoning: "Analyzed 15+ relevant threads and identified common success factors"
+                    },
+                    {
+                        agent_type: "analyst",
+                        response: `Trend analysis shows that ${question.toLowerCase()} has evolved significantly over the past 2 years. Community data indicates a 40% increase in successful outcomes when following established protocols.`,
+                        confidence: 0.85,
+                        processing_time: 1.0,
+                        reasoning: "Processed historical data and identified improvement trends"
+                    },
+                    {
+                        agent_type: "technical_expert",
+                        response: `From a technical perspective, ${question.toLowerCase()} requires specific equipment configurations and precise operational parameters. The community discussions provide valuable real-world calibration data.`,
+                        confidence: 0.91,
+                        processing_time: 1.5,
+                        reasoning: "Technical specifications validated against industry standards"
+                    },
+                    {
+                        agent_type: "business_consultant",
+                        response: `Business considerations for ${question.toLowerCase()} include regulatory compliance, cost analysis, and market positioning. Community insights reveal hidden costs and timeline realities.`,
+                        confidence: 0.82,
+                        processing_time: 1.1,
+                        reasoning: "Evaluated business factors and regulatory requirements"
+                    },
+                    {
+                        agent_type: "safety_specialist",
+                        response: `Safety protocols for ${question.toLowerCase()} are critical. Community discussions highlight common safety mistakes and provide proven mitigation strategies.`,
+                        confidence: 0.94,
+                        processing_time: 0.9,
+                        reasoning: "Identified safety risks and recommended protective measures"
+                    }
+                ];
+                
+                // Mock synthesized response
+                const synthesizedResponse = `# Comprehensive Analysis: ${question}
+
+## Executive Summary
+Based on analysis of ${threadResults.length} relevant Future4200 discussions and insights from ${agentResponses.length} specialized AI agents, here's a comprehensive answer to your question about ${question.toLowerCase()}.
+
+## Key Findings
+- **Safety First**: All community discussions emphasize safety as the top priority
+- **Equipment Matters**: Quality equipment significantly impacts success rates
+- **Community Knowledge**: Real-world experience provides invaluable insights
+- **Regulatory Compliance**: Business considerations require careful planning
+
+## Detailed Recommendations
+${agentResponses.map(agent => `
+### ${agent.agent_type.replace('_', ' ').toUpperCase()} Perspective
+${agent.response}
+`).join('')}
+
+## Community Insights
+The Future4200 community provides rich, practical knowledge that complements technical guidance:
+${threadResults.map(thread => `
+- **[${thread.title}](${thread.url})** - ${thread.snippet}
+`).join('')}
+
+## Next Steps
+1. Review safety protocols thoroughly
+2. Research equipment options based on community recommendations
+3. Consider regulatory requirements for your jurisdiction
+4. Start with small-scale testing before full implementation
+
+*This analysis combines AI expertise with real community knowledge for the most comprehensive guidance possible.*`;
+
+                return {
+                    threadResults,
+                    agentResponses,
+                    synthesizedResponse,
+                    overallConfidence: 0.88,
+                    totalProcessingTime: 7.1
+                };
+            }
+            
+            displayResults(result) {
+                // Update stats
+                document.getElementById('threadCount').textContent = result.threadResults.length;
+                document.getElementById('agentCount').textContent = result.agentResponses.length;
+                document.getElementById('confidence').textContent = `${Math.round(result.overallConfidence * 100)}%`;
+                document.getElementById('processingTime').textContent = `${result.totalProcessingTime}s`;
+                
+                // Update subtitles
+                document.getElementById('threadSubtitle').textContent = `${result.threadResults.length} relevant discussions`;
+                document.getElementById('agentSubtitle').textContent = `${result.agentResponses.length} agents responded`;
+                
+                // Display thread results
+                this.threadResults.innerHTML = result.threadResults.map(thread => `
+                    <div class="thread-item">
+                        <div class="thread-title" onclick="window.open('${thread.url}', '_blank')">${thread.title}</div>
+                        <div class="thread-meta">
+                            <span>by ${thread.author}</span>
+                            <span>${thread.post_count} posts</span>
+                            <span>${thread.view_count} views</span>
+                            <span class="relevance-score">${Math.round(thread.relevance_score * 100)}% match</span>
+                        </div>
+                        <div class="thread-snippet">${thread.snippet}</div>
+                    </div>
+                `).join('');
+                
+                // Display agent results
+                this.agentResults.innerHTML = result.agentResponses.map(agent => `
+                    <div class="agent-response">
+                        <div class="agent-header">
+                            <div class="agent-type">${agent.agent_type.replace('_', ' ')}</div>
+                            <div class="agent-confidence">${Math.round(agent.confidence * 100)}% confidence</div>
+                            <div class="agent-time">${agent.processing_time}s</div>
+                        </div>
+                        <div class="agent-content">${agent.response}</div>
+                        <div class="agent-reasoning">${agent.reasoning}</div>
+                    </div>
+                `).join('');
+                
+                // Display synthesized response
+                document.getElementById('synthesizedContent').innerHTML = result.synthesizedResponse.replace(/\n/g, '<br>');
+                document.getElementById('synthesizedConfidence').textContent = `${Math.round(result.overallConfidence * 100)}% confidence`;
+                this.synthesizedResponse.style.display = 'block';
+                
+                // Show results container
+                this.resultsContainer.style.display = 'grid';
+            }
+            
+            showErrorState() {
+                this.threadResults.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <div>Error processing question</div>
+                    </div>
+                `;
+                
+                this.agentResults.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <div>Error processing question</div>
+                    </div>
+                `;
+                
+                this.resultsContainer.style.display = 'grid';
+            }
+        }
+        
+        // Initialize the interface when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MultiAgentInterface();
+        });
+    </script>
+</body>
+</html>
